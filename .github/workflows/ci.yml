@@ -21,8 +21,7 @@ jobs:
     - run: tree .
 
     - name: upload artifacts
-      working-directory: ./linux/touchpad
       uses: actions/upload-artifact@v2
       with:
         name: kankaku-linux-touchpad-ubuntu-20.04
-        path: kankaku
+        path: ./linux/touchpad/kankaku
