@@ -16,7 +16,7 @@ jobs:
 
     - name: build
       working-directory: ./linux/touchpad
-      run: ./build.sh
+      run: bash ./build.sh
 
     - run: tree .
 
