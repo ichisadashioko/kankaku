@@ -1,24 +1,29 @@
 name: CI
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  push
+  pull_request
 
 
 jobs:
   build:
     runs-on: ubuntu-20.04
 
-    - name: Check out repository
+    - name: check out repository
       uses: actions/checkout@v2
 
-    - name: Build
+    - name: install tree
+      run: sudo apt install -y tree
+
+    - name: build
+      working-directory: ./linux/touchpad
       run: ./build.sh
 
-    - name: Upload artifacts
+    - run: tree .
+
+    - name: upload artifacts
+      working-directory: ./linux/touchpad
       uses: actions/upload-artifact@v2
       with:
-        name: kankaku-ubuntu-20.04
+        name: kankaku-linux-touchpad-ubuntu-20.04
         path: kankaku
