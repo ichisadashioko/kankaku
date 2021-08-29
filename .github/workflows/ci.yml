@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-20.04
 
+    steps:
+
     - name: check out repository
       uses: actions/checkout@v2
 
