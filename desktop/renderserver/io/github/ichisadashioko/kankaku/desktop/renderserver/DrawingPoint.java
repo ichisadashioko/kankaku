@@ -5,4 +5,9 @@ public class DrawingPoint {
     public int y;
     public int dimensionWidth;
     public int dimensionHeight;
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
 }

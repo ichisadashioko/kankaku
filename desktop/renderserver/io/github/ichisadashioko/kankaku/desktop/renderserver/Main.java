@@ -14,6 +14,9 @@ public class Main {
         frame.mouseDrawingCanvas.addMouseListener(drawingMouseListener);
         frame.mouseDrawingCanvas.addMouseMotionListener(drawingMouseListener);
 
+        DrawingKeyListener drawingKeyListener = new DrawingKeyListener(frame);
+        frame.mouseDrawingCanvas.addKeyListener(drawingKeyListener);
+
         frame.setSize(1280, 720);
         frame.setTitle("kankaku");
         frame.setVisible(true);
