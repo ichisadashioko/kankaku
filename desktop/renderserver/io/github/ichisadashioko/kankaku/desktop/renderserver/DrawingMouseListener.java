@@ -69,9 +69,7 @@ public class DrawingMouseListener implements MouseListener, MouseMotionListener 
             point.dimensionHeight = e.getComponent().getHeight();
 
             this.frame.lastStroke.add(point);
-
-            // TODO setTimeout for calling repaint instead call it immediately
-            this.frame.mouseDrawingCanvas.repaint();
+            // TODO invoke drawing request
         }
     }
 }

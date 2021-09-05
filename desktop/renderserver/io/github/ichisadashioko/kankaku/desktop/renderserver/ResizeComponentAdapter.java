@@ -1,5 +1,6 @@
 package io.github.ichisadashioko.kankaku.desktop.renderserver;
 
+import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
@@ -12,7 +13,9 @@ public class ResizeComponentAdapter implements ComponentListener {
 
     @Override
     public void componentResized(ComponentEvent e) {
-        this.frame.mouseDrawingCanvas.setSize(frame.getSize());
+        Dimension newSize = frame.getSize();
+        // TODO invoke timeout thread for re-rendering the buffered image
+        this.frame.mouseDrawingCanvas.setSize(newSize);
     }
 
     @Override

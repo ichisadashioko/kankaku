@@ -46,8 +46,12 @@ public class DrawingKeyListener implements KeyListener {
                 System.out.println();
             }
 
-            System.out.println(
-                    "numberOfPaintCalls: " + this.frame.mouseDrawingCanvas.numberOfPaintCalls);
+            this.frame.mouseDrawingCanvas.bufferedImage =
+                    Utils.RenderStrokes(
+                            this.frame.strokeList,
+                            this.frame.mouseDrawingCanvas.getWidth(),
+                            this.frame.mouseDrawingCanvas.getHeight());
+            this.frame.mouseDrawingCanvas.repaint();
             // System.out.println(e);
         }
     }

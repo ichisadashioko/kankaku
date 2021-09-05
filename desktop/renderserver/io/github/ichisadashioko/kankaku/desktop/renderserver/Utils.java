@@ -1,6 +1,10 @@
 package io.github.ichisadashioko.kankaku.desktop.renderserver;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Utils {
@@ -64,5 +68,81 @@ public class Utils {
         int green = ((int) ((green_i + m) * 255d)) % 256;
         int blue = ((int) ((blue_i + m) * 255d)) % 256;
         return new Color(red, green, blue);
+    }
+
+    public static final List<Color> COLOR_LIST = new ArrayList<>();
+
+    public static void PopulateColorList(int numberOfColors) {
+        int colorListSize = COLOR_LIST.size();
+        if (colorListSize < numberOfColors) {
+            int numberOfColorsToGenerate = numberOfColors - colorListSize;
+            for (int i = 0; i < numberOfColorsToGenerate; i++) {
+                COLOR_LIST.add(Utils.GenerateRandomColorWithHSVAndGoldenRatio());
+            }
+        }
+    }
+
+    public static BufferedImage RenderStrokes(
+            List<List<DrawingPoint>> strokeList, int width, int height) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        strokeList = CleanUpStrokeList(strokeList);
+        int strokeListSize = strokeList.size();
+        PopulateColorList(strokeListSize);
+
+        Graphics2D graphics2d = image.createGraphics();
+        for (int strokeIndex = 0; strokeIndex < strokeList.size(); strokeIndex++) {
+            List<DrawingPoint> pointList = strokeList.get(strokeIndex);
+            Color strokeColor = COLOR_LIST.get(strokeIndex);
+            graphics2d.setColor(strokeColor);
+
+            int numberOfPoints = pointList.size();
+            if (numberOfPoints < 1) {
+                // continue;
+            } else if (numberOfPoints == 1) {
+                graphics2d.drawOval((int) pointList.get(0).x, (int) pointList.get(0).y, 0, 0);
+            } else {
+                DrawingPoint lastPoint = pointList.get(0);
+
+                for (int pointIndex = 1; pointIndex < numberOfPoints; pointIndex++) {
+                    DrawingPoint currentPoint = pointList.get(pointIndex);
+                    graphics2d.drawLine(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
+                    lastPoint = currentPoint;
+                }
+            }
+        }
+
+        graphics2d.dispose();
+        return image;
+    }
+
+    public static List<List<DrawingPoint>> CleanUpStrokeList(List<List<DrawingPoint>> strokeList) {
+        List<List<DrawingPoint>> retval = new ArrayList<>();
+
+        // TODO use more complicated algorithm to simplify the stroke list
+        for (int strokeIndex = 0; strokeIndex < strokeList.size(); strokeIndex++) {
+            List<DrawingPoint> stroke = strokeList.get(strokeIndex);
+            if (stroke.size() < 1) {
+                continue;
+            } else {
+                List<DrawingPoint> filteredStroke = new ArrayList<>();
+
+                DrawingPoint lastPoint = stroke.get(0);
+                filteredStroke.add(lastPoint);
+                for (int pointIndex = 1; pointIndex < stroke.size(); pointIndex++) {
+                    DrawingPoint currentPoint = stroke.get(pointIndex);
+                    if ((currentPoint.x == lastPoint.x) && (currentPoint.y == lastPoint.y)) {
+                        continue;
+                    } else {
+                        lastPoint = currentPoint;
+                        filteredStroke.add(lastPoint);
+                    }
+                }
+
+                retval.add(filteredStroke);
+            }
+        }
+
+        return retval;
     }
 }
