@@ -17,6 +17,18 @@ public class MouseDrawingCanvas extends Canvas {
         this.backgroundColor = Color.BLACK;
     }
 
+    public void updateImageContent() {
+        if (bufferedImage == null) {
+
+            this.bufferedImage =
+                    Utils.RenderStrokes(this.strokeList, this.getWidth(), this.getHeight());
+        } else {
+            this.bufferedImage =
+                    Utils.IncrementalRenderStrokes(this.bufferedImage, this.strokeList);
+        }
+        this.repaint();
+    }
+
     @Override
     public void paint(Graphics g) {
         if (this.bufferedImage == null) {
@@ -25,7 +37,8 @@ public class MouseDrawingCanvas extends Canvas {
 
         if ((this.bufferedImage.getWidth() != this.getWidth())
                 || (this.bufferedImage.getHeight() != this.getHeight())) {
-            // TODO invoke re-rendering request
+            this.bufferedImage =
+                    Utils.RenderStrokes(this.strokeList, this.getWidth(), this.getHeight());
             return;
         }
 

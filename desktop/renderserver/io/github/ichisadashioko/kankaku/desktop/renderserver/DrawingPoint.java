@@ -5,6 +5,7 @@ public class DrawingPoint {
     public int y;
     public int dimensionWidth;
     public int dimensionHeight;
+    public boolean rendered = false;
 
     @Override
     public String toString() {

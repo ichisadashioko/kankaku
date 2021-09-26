@@ -68,8 +68,26 @@ public class DrawingMouseListener implements MouseListener, MouseMotionListener 
             point.dimensionWidth = e.getComponent().getWidth();
             point.dimensionHeight = e.getComponent().getHeight();
 
-            this.frame.lastStroke.add(point);
-            // TODO invoke drawing request
+            synchronized (this.frame.lastStroke) {
+                if (this.frame.lastStroke.size() > 0) {
+                    DrawingPoint lastPoint =
+                            this.frame.lastStroke.get(this.frame.lastStroke.size() - 1);
+                    if (lastPoint.x == point.x && lastPoint.y == point.y) {
+                        return;
+                    }
+                }
+
+                this.frame.lastStroke.add(point);
+
+                long ts = System.currentTimeMillis();
+                ThreadCreationTimeHolder.LAST_RENDERING_THREAD_CREATION_TIME = ts;
+                UpdateImageContentThread updateThread =
+                        new UpdateImageContentThread(
+                                ts,
+                                ThreadCreationTimeHolder.RENDERING_THREAD_WAIT_TIME,
+                                this.frame.mouseDrawingCanvas);
+                updateThread.start();
+            }
         }
     }
 }

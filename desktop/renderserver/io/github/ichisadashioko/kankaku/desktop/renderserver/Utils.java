@@ -82,11 +82,56 @@ public class Utils {
         }
     }
 
+    public static BufferedImage IncrementalRenderStrokes(
+            BufferedImage image, List<List<DrawingPoint>> strokeList) {
+        int strokeListSize = strokeList.size();
+        PopulateColorList(strokeListSize);
+
+        Graphics2D graphics2d = image.createGraphics();
+
+        for (int strokeIndex = 0; strokeIndex < strokeList.size(); strokeIndex++) {
+            List<DrawingPoint> pointList = strokeList.get(strokeIndex);
+            Color strokeColor = COLOR_LIST.get(strokeIndex);
+            graphics2d.setColor(strokeColor);
+
+            int numberOfPoints = pointList.size();
+            if (numberOfPoints < 1) {
+                // continue;
+            } else if (numberOfPoints == 1) {
+                DrawingPoint point = pointList.get(0);
+                if (!point.rendered) {
+                    graphics2d.drawOval((int) pointList.get(0).x, (int) pointList.get(0).y, 0, 0);
+                    point.rendered = true;
+                }
+            } else {
+                DrawingPoint lastPoint = pointList.get(0);
+                if (!lastPoint.rendered) {
+                    lastPoint.rendered = true;
+                }
+
+                for (int pointIndex = 1; pointIndex < numberOfPoints; pointIndex++) {
+                    DrawingPoint currentPoint = pointList.get(pointIndex);
+                    if (!currentPoint.rendered) {
+                        graphics2d.drawLine(
+                                lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
+                        currentPoint.rendered = true;
+                    }
+
+                    lastPoint = currentPoint;
+                }
+            }
+        }
+
+        graphics2d.dispose();
+        return image;
+    }
+
     public static BufferedImage RenderStrokes(
             List<List<DrawingPoint>> strokeList, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        strokeList = CleanUpStrokeList(strokeList);
+        // TODO clean up the stroke list at adding time
+        // strokeList = CleanUpStrokeList(strokeList);
         int strokeListSize = strokeList.size();
         PopulateColorList(strokeListSize);
 

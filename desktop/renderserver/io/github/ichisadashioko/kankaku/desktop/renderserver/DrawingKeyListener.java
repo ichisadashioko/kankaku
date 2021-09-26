@@ -2,7 +2,6 @@ package io.github.ichisadashioko.kankaku.desktop.renderserver;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.List;
 
 public class DrawingKeyListener implements KeyListener {
 
@@ -36,22 +35,29 @@ public class DrawingKeyListener implements KeyListener {
             this.frame.isDrawing = false;
             this.frame.lastStroke = null;
         } else if (keyCode == 80) { // 'p'
-            System.out.println("this.frame.strokeList.size(): " + this.frame.strokeList.size());
-            for (int i = 0; i < this.frame.strokeList.size(); i++) {
-                List<DrawingPoint> stroke = this.frame.strokeList.get(i);
-                System.out.print("- ");
-                for (int pointIndex = 0; pointIndex < stroke.size(); pointIndex++) {
-                    System.out.print(stroke.get(pointIndex) + ", ");
-                }
-                System.out.println();
-            }
+            // System.out.println("this.frame.strokeList.size(): " +
+            // this.frame.strokeList.size());
+            // for (int i = 0; i < this.frame.strokeList.size(); i++) {
+            // List<DrawingPoint> stroke = this.frame.strokeList.get(i);
+            // System.out.print("- ");
+            // for (int pointIndex = 0; pointIndex < stroke.size(); pointIndex++) {
+            // System.out.print(stroke.get(pointIndex) + ", ");
+            // }
+            // System.out.println();
+            // }
 
-            this.frame.mouseDrawingCanvas.bufferedImage =
-                    Utils.RenderStrokes(
-                            this.frame.strokeList,
-                            this.frame.mouseDrawingCanvas.getWidth(),
-                            this.frame.mouseDrawingCanvas.getHeight());
-            this.frame.mouseDrawingCanvas.repaint();
+            long ts = System.currentTimeMillis();
+            ThreadCreationTimeHolder.LAST_RENDERING_THREAD_CREATION_TIME = ts;
+            UpdateImageContentThread updateThread =
+                    new UpdateImageContentThread(ts, 100, this.frame.mouseDrawingCanvas);
+            updateThread.start();
+
+            // this.frame.mouseDrawingCanvas.bufferedImage =
+            // Utils.RenderStrokes(
+            // this.frame.strokeList,
+            // this.frame.mouseDrawingCanvas.getWidth(),
+            // this.frame.mouseDrawingCanvas.getHeight());
+            // this.frame.mouseDrawingCanvas.repaint();
             // System.out.println(e);
         }
     }
