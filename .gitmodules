@@ -2,5 +2,5 @@
 	path = scripts
 	url = https://github.com/ichisadashioko/scripts
 [submodule "fmt_scripts"]
-	path = fmt_scripts
+	path = scripts
 	url = https://github.com/ichisadashioko/scripts
