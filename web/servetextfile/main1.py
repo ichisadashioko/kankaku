@@ -44,7 +44,6 @@ class UnhandledRequestContentListIterator:
 
     def read_next_byte(self):
         if len(self.unhandled_content_list) == 0:
-            self.finished = True
             return -1
 
         if self.list_index >= len(self.unhandled_content_list):
@@ -67,26 +66,42 @@ class UnhandledRequestContentListIterator:
         self.remaining_bytes -= 1
         return byte_value
 
+def is_valid_http_method_char(byte_value: int):
+    return byte_value >= ord('A') and byte_value <= ord('Z')
 
 class HttpRequest:
     def __init__(self, clientsocket: socket.socket, clientaddress: str):
         self.clientsocket = clientsocket
         self.clientaddress = clientaddress
+        self.handled_request_content_list: typing.List[bytes] = []
         self.unhandled_request_content_list: typing.List[bytes] = []
         self.request_parsing_state = HttpRequestParsingState.READING_METHOD
         self.request_method: str = None
         self.request_url: str = None
+        self.cache_object = {}
 
     def has_all_request_headers(self):
-        for content_bs in self.unhandled_request_content_list:
-            if len(content_bs) < 1:
-                continue
+        if self.request_parsing_state == HttpRequestParsingState.DONE_READING_HEADERS:
+            return True
 
+        bs_iterator = UnhandledRequestContentListIterator(self.unhandled_request_content_list)
+
+        byte_value = bs_iterator.read_next_byte()
+        while byte_value >= 0:
             if self.request_parsing_state == HttpRequestParsingState.READING_METHOD:
-                break
-            # TODO WIP
+                if is_valid_http_method_char(byte_value):
+                    if not 'cached_http_method_char_list' in self.cache_object:
+                        self.cache_object['cached_http_method_char_list'] = [byte_value]
+                    else:
+                        self.cache_object['cached_http_method_char_list'].append(byte_value)
+                else:
+                    if
+            # TODO
+            byte_value = bs_iterator.read_next_byte()
 
 
+        if self.request_parsing_state == HttpRequestParsingState.DONE_READING_HEADERS:
+            return True
 def handle_socket_client(client_socket: socket.socket, client_address):
     http_request = HttpRequest(client_socket, client_address)
 
