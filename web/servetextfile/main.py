@@ -119,7 +119,9 @@ def gettextfilecontent():
         return bottle.HTTPError(404, f'File Not Found {requested_filepath}')
 
     # check if the file is a text file
-    file_content_bs = open(absolute_filepath, 'rb').read()
+    with open(absolute_filepath, 'rb') as infile:
+        file_content_bs = infile.read()
+
     try:
         file_content = file_content_bs.decode('utf-8')
     except UnicodeDecodeError:
