@@ -1,5 +1,6 @@
-var current_viewing_filepath = '';
-var current_viewing_file_modified_time = 0;
+var current_viewing_filepath = null;
+var current_viewing_file_modified_time = null;
+var content_loaded = false;
 
 var current_directory_path = '';
 var filetree_root_node = {};
@@ -13,6 +14,8 @@ var filename_container = document.getElementById('filename');
 function normalize_filepath(filepath) {
     return filepath.replace(/\/+/g, '/');
 }
+
+var DEFAULT_RELOAD_TIMEOUT = 1000;
 
 /**
  *
@@ -91,13 +94,86 @@ function display_filetree(path, fileinfo_list) {
             new_node.addEventListener("click", function (event) {
                 display_filecontent(`${path}/${filename}`)
             });
+
             directorylisting_container.appendChild(new_node);
         }
     }
 }
 
+/**
+ *
+ * @param {string} filepath
+ * @param {number} timeout
+ */
+function auto_reload_filecontent(filepath, timeout) {
+    if (current_viewing_file_modified_time == null) {
+        setTimeout(function () {
+            console.log(`skip reload current_viewing_file_modified_time == null`);
+            auto_reload_filecontent(filepath, timeout);
+        }, timeout);
+        return;
+    }
+
+    if (!content_loaded) {
+        setTimeout(function () {
+            console.log(`skip reload !content_loaded`);
+            auto_reload_filecontent(filepath, timeout);
+        }, timeout);
+        return;
+    }
+
+    if (current_viewing_filepath !== filepath) {
+        console.log(`end reload current_viewing_filepath !== filepath`)
+        return;
+    }
+
+    {
+        let xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', function (event) {
+            let response_str = event.target.responseText;
+            let modifiedTime = parseInt(response_str);
+
+            if (modifiedTime > current_viewing_file_modified_time) {
+                current_viewing_file_modified_time = modifiedTime;
+                {
+                    let xhr = new XMLHttpRequest();
+                    xhr.addEventListener('load', function (event) {
+                        filecontent_container.innerHTML = event.target.responseText;
+                        setTimeout(function () {
+                            auto_reload_filecontent(filepath, timeout);
+                        }, timeout);
+                    });
+
+                    let form_data = {
+                        'filepath': filepath,
+                    };
+
+                    let serialized_form_data = serialize_form_fields(form_data);
+                    xhr.open('POST', '/gettextfilecontent');
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.send(serialized_form_data);
+                }
+            } else {
+                setTimeout(function () {
+                    auto_reload_filecontent(filepath, timeout);
+                }, timeout);
+            }
+        });
+
+        let form_data = {
+            'filepath': filepath,
+        };
+
+        let serialized_form_data = serialize_form_fields(form_data);
+        xhr.open('POST', '/getfilemodifiedtime');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(serialized_form_data);
+    }
+}
+
 function display_filecontent(path) {
     path = normalize_filepath(path);
+    current_viewing_filepath = path;
     var path_components = path.split('/');
     var current_node = filetree_root_node
     for (let i = 0; i < (path_components.length - 1); i++) {
@@ -129,6 +205,7 @@ function display_filecontent(path) {
             let response_str = event.target.responseText;
             let modifiedTime = parseInt(response_str);
             current_node.modifiedTime = modifiedTime;
+            current_viewing_file_modified_time = modifiedTime;
         });
 
         let form_data = {
@@ -148,6 +225,9 @@ function display_filecontent(path) {
             let filecontent = response_str;
             current_node.filecontent = filecontent;
             filecontent_container.textContent = filecontent;
+            content_loaded = true;
+
+            auto_reload_filecontent(path, 1000);
         });
 
         let form_data = {
