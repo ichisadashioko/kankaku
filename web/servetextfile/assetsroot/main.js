@@ -63,6 +63,30 @@ function display_filecontent(filepath) {
     // TODO
 }
 
+function serialize_form_fields(form_data) {
+    var serialized_string = '';
+    for (var property in form_data) {
+        // console.log(property);
+
+        if (property.length === 0) {
+            continue;
+        } else {
+            var value = form_data[property];
+            if (typeof (value) !== 'string') {
+                value = '' + value;
+            }
+
+            if (serialized_string.length !== 0) {
+                serialized_string += '&';
+            }
+
+            serialized_string += `${encodeURIComponent(property)}=${encodeURIComponent(value)}`;
+        }
+    }
+
+    return serialized_string;
+}
+
 function get_directory_info(path) {
     path = normalize_filepath(path);
     var request = new XMLHttpRequest();
@@ -71,11 +95,15 @@ function get_directory_info(path) {
         display_filetree(path, response_obj.fileinfo_list);
     });
 
-    let request_path = `/listdirectory/${path}`;
-    request_path = normalize_filepath(request_path);
+    let form_data = {
+        'filepath': normalize_filepath(path),
+    };
 
-    request.open("GET", request_path);
-    request.send();
+    let encoded_form_data_str = serialize_form_fields(form_data);
+
+    request.open('POST', '/listdirectory');
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.send(encoded_form_data_str);
 }
 
 function main() {
