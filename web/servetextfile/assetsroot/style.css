@@ -1,0 +1,13 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    background-color: black;
+    color: white;
+}
+
+#directorynavigation .directorynavigation-item {
+    display: inline-block;
+}

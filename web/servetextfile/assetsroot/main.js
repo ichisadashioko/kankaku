@@ -1,21 +1,55 @@
-var current_viewing_filepath = "";
+var current_viewing_filepath = '';
 var current_viewing_file_modified_time = 0;
 
-var current_directory_path = "";
+var current_directory_path = '';
 var filetree_root_node = {};
 
-var directorylisting_container = document.getElementById("directorylisting");
+var directorylisting_container = document.getElementById('directorylisting');
+var directorynavigation_container = document.getElementById('directorynavigation');
 
 function normalize_filepath(filepath) {
-    return filepath.replace(/\/+/g, "/");
+    return filepath.replace(/\/+/g, '/');
 }
 
+/**
+ *
+ * @param {string} path
+ * @param {Array} fileinfo_list
+ */
 function display_filetree(path, fileinfo_list) {
     // split path components
-    var path_components = path.split("/");
+    path = normalize_filepath(path);
+    var path_components = path.split('/');
+
+    directorynavigation_container.innerHTML = '';
+
     var current_node = filetree_root_node;
+    let current_node_filepath = '/';
+    let navigation_element = document.createElement('div');
+    navigation_element.textContent = '/';
+    navigation_element.classList.add('directorynavigation-item');
+    navigation_element.addEventListener('click', function (event) {
+        get_directory_info(current_node_filepath);
+    });
+
+    directorynavigation_container.appendChild(navigation_element);
+
     for (let i = 0; i < path_components.length; i++) {
         let filename = path_components[i];
+        if (filename.length === 0) {
+            continue;
+        }
+
+        current_node_filepath += `${filename}/`;
+
+        let navigation_element = document.createElement('div');
+        navigation_element.textContent = `${filename}/`;
+        navigation_element.classList.add('directorynavigation-item');
+        navigation_element.addEventListener('click', function (event) {
+            get_directory_info(current_node_filepath);
+        });
+        directorynavigation_container.appendChild(navigation_element);
+
         if (current_node[filename] == null) {
             // add a new branch
             current_node[filename] = {};
