@@ -2,6 +2,8 @@ package io.github.ichisadashioko.kankaku.desktop.renderserver;
 
 public class Main {
     public static void main(String[] args) {
+        // fix awt canvas flickering
+        System.setProperty("sun.awt.noerasebackground", "true");
         System.out.println(
                 "Hold 'h' and move the mouse to draw\n" + "Press 'p' to render the drawn strokes");
 
