@@ -14,7 +14,6 @@ public class ResizeComponentAdapter implements ComponentListener {
     @Override
     public void componentResized(ComponentEvent e) {
         Dimension newSize = frame.getSize();
-        // TODO invoke timeout thread for re-rendering the buffered image
         this.frame.mouseDrawingCanvas.setSize(newSize);
     }
 
